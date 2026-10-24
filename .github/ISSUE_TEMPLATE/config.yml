@@ -1,0 +1,20 @@
+# Issues here are for WidgetCake itself. A bug inside an overlay belongs in
+# that overlay's own repo, and questions go to Discussions.
+blank_issues_enabled: false
+
+contact_links:
+  - name: Setup help, or a question
+    url: https://github.com/ruptz/WidgetCake/discussions/new?category=q-a
+    about: Something you're not sure is a bug, or how to do something. Ask here and it gets answered in the open, where the next person can find it.
+
+  - name: A problem inside ChatterLayer
+    url: https://github.com/ruptz/Chatterlayer/issues/new/choose
+    about: Captions, the Discord bot, speech models, the caption overlay. Anything that happens once ChatterLayer is open.
+
+  - name: A problem inside JammyLayer
+    url: https://github.com/ruptz/JammyLayer/issues/new/choose
+    about: Spotify sign-in, the now-playing card, its setup page. Anything that happens once JammyLayer is open.
+
+  - name: Is the unsigned build safe?
+    url: https://github.com/ruptz/WidgetCake#install
+    about: Windows SmartScreen and macOS "damaged" warnings are expected. The builds are unsigned because signing costs money every year, and WidgetCake is free.

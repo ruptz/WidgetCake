@@ -1,0 +1,47 @@
+name: Feature request
+description: Something WidgetCake should do that it doesn't.
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Worth knowing before you write: **WidgetCake goes online only when you
+        click.** Checking for updates and installing are the only times it
+        talks to GitHub, and there are no accounts. A request that needs it to
+        phone home on its own isn't going to happen.
+
+        Want a new overlay, or not sure whether it's a feature request?
+        [Start a discussion](https://github.com/ruptz/WidgetCake/discussions/new?category=ideas)
+        instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do
+      description: The situation, not the solution.
+      placeholder: |
+        I start the same two overlays before every stream, one after the other.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you want it to do
+      description: Your idea of how it should work, if you have one. Fine to leave this vague.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part
+      options:
+        - The overlay cards
+        - Installing and updating
+        - Launching and stopping
+        - The window and its menus
+        - widgetcake.com
+        - Something new that doesn't fit the above
+    validations:
+      required: true

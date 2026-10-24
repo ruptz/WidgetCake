@@ -1,0 +1,938 @@
+/* WidgetCake: a spec sheet of overlays. The window has no system frame, the
+   cells run edge to edge and share their borders, and every cell carries
+   the same strip of facts. Two voices do all the type: Archivo, run wide,
+   for names, and IBM Plex Mono in small capitals for every fact and control.
+
+   Each cell's artwork is its plate: a miniature of what that app puts on
+   stream, on the checkerboard video tools use for "transparent". Plates
+   stay dark in both themes because they stand for a stream frame, and they
+   only move while their app is running.
+
+   Each app also has a colour of its own, carried only by its two-letter
+   badge. Everything else that is coloured is state: green running, amber on
+   its way, blue for something to do.
+
+   Actions are rounded pills in sentence case, the one soft shape in a sharp
+   grid, so the things you press never read as part of the ruling. */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Plex Mono";
+  src: url("fonts/plex-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Plex Mono";
+  src: url("fonts/plex-mono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Plex Mono";
+  src: url("fonts/plex-mono-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: block;
+}
+
+:root {
+  color-scheme: dark;
+
+  --ground: #101114;
+  --line: #2a2c31;
+  --hover: #1a1c20;
+  --text: #f2f2f3;
+  --text-2: #a8acb4;
+  --text-3: #6d727b;
+
+  --press: #f2f2f3;
+  --on-press: #101114;
+
+  --run: #5ad08f;
+  --busy: #e8b54b;
+  --todo: #7ea6ff;
+  --close: #c42b1c;
+
+  --font: "Archivo", "Segoe UI", system-ui, sans-serif;
+  --mono: "Plex Mono", "Cascadia Mono", ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+
+    --ground: #f4f5f7;
+    --line: #d5d8dd;
+    --hover: #eaecef;
+    --text: #121316;
+    --text-2: #4c525b;
+    --text-3: #80868f;
+
+    --press: #121316;
+    --on-press: #f4f5f7;
+
+    --run: #188a53;
+    --busy: #a06d00;
+    --todo: #2f5fd6;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* The second voice: facts and controls, in small mono capitals. */
+.strip,
+.tag,
+.source,
+.onair,
+.statusbar {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.link {
+  color: var(--text-2);
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+.link:hover {
+  color: var(--text);
+}
+
+/* -------------------------------------------------------------- titlebar --- */
+
+.titlebar {
+  display: flex;
+  align-items: stretch;
+  height: 54px;
+  flex: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px 0 16px;
+  border-right: 1px solid var(--line);
+}
+
+.brand img {
+  display: block;
+  border-radius: 6px;
+}
+
+.wordmark {
+  font-size: 17px;
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: 0.02em;
+}
+
+.switcher {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 12px;
+  min-width: 0;
+}
+
+.switch-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.switch-item:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+
+/* Running: underlined in its own colour, like Adobe's current app. */
+.switch-item::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--app);
+  opacity: 0;
+}
+
+.switch-item[data-state="live"] {
+  color: var(--text);
+}
+
+.switch-item[data-state="live"]::after {
+  opacity: 1;
+}
+
+.switch-item .mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.window-controls {
+  display: flex;
+}
+
+.window-controls button {
+  width: 48px;
+  display: grid;
+  place-items: center;
+  color: var(--text-2);
+}
+
+.window-controls button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.window-controls .close:hover {
+  background: var(--close);
+  color: #fff;
+}
+
+/* --------------------------------------------------------------- toolbar --- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: none;
+  padding: 18px 16px 16px;
+}
+
+.heading {
+  margin: 0 4px 0 2px;
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.square {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--text-2);
+}
+
+.square:hover:not(:disabled) {
+  border-color: var(--text-3);
+  color: var(--text);
+}
+
+.square:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Adobe-style tabs: an icon and a word, the chosen one a filled tile. */
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tabs button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px 0 12px;
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.tabs svg {
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.tabs button span {
+  color: var(--text-3);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabs button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.tabs [aria-checked="true"],
+.tabs [aria-checked="true"]:hover {
+  background: var(--press);
+  color: var(--on-press);
+}
+
+.tabs [aria-checked="true"] span {
+  color: inherit;
+  opacity: 0.6;
+}
+
+.onair {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 4px 0 auto;
+  color: var(--text-3);
+}
+
+.lamp {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-3);
+}
+
+.onair[data-live="1"] {
+  color: var(--run);
+}
+
+.onair[data-live="1"] .lamp {
+  background: var(--run);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--run) 22%, transparent);
+}
+
+/* ------------------------------------------------------------------ grid --- */
+
+main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+
+/* Cells share borders: the grid draws top and left, each cell its right and
+   bottom, so every line is one pixel wherever the columns break. */
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 40px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-2);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 18px 20px;
+}
+
+/* Badge and name side by side, like an app on a shelf. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.head > div {
+  min-width: 0;
+}
+
+.mark {
+  width: 50px;
+  height: 50px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--app);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--app) 14%, var(--ground));
+  color: var(--app);
+  font-size: 22px;
+  font-weight: 800;
+  font-stretch: 100%;
+  letter-spacing: -0.02em;
+}
+
+/* On a light ground the bright app colours need weight to stay readable. */
+@media (prefers-color-scheme: light) {
+  .mark {
+    color: color-mix(in srgb, var(--app) 62%, var(--text));
+    border-color: color-mix(in srgb, var(--app) 75%, var(--text));
+  }
+
+  .cell.soon .plate {
+    opacity: 0.3;
+  }
+}
+
+/* A real logo replaces the badge outright: no tint, no outline. */
+.mark.has-logo {
+  border: 0;
+  background: none;
+  overflow: hidden;
+}
+
+.mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Where the switcher sends you, so you can see which cell it was. */
+.cell.found {
+  animation: found 1.2s ease-out;
+}
+
+@keyframes found {
+  from {
+    background: color-mix(in srgb, var(--app) 16%, transparent);
+  }
+}
+
+.soon .mark {
+  --app: var(--text-3);
+  border-style: dashed;
+  background: none;
+  font-weight: 400;
+}
+
+.name {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 750;
+  font-stretch: 112%;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+/* The family word sits back, the app's own word leads. */
+.name span {
+  color: var(--text-3);
+}
+
+.tagline {
+  margin: 3px 0 0;
+  color: var(--text-2);
+  max-width: 42ch;
+}
+
+.tag {
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  color: var(--text-3);
+  font-size: 11.5px;
+}
+
+.cell[data-state="live"] .tag {
+  color: var(--run);
+}
+
+.cell[data-state="stopping"] .tag {
+  color: var(--busy);
+}
+
+.cell[data-state="missing"] .tag,
+.cell[data-update] .tag {
+  color: var(--todo);
+}
+
+.cell[data-state="installing"] .tag {
+  color: var(--busy);
+}
+
+.note {
+  margin: 10px 0 0;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.note[data-kind="fault"] {
+  color: var(--close);
+}
+
+.source {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  min-width: 0;
+  color: var(--text-3);
+}
+
+.url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  user-select: text;
+}
+
+.cell[data-state="missing"] .source,
+.cell[data-state="available"] .source,
+.cell[data-state="installing"] .source {
+  visibility: hidden;
+}
+
+/* The actions sit on the cell's floor, so every row of cells lines up. */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.more-wrap {
+  position: relative;
+  margin-right: auto;
+}
+
+.more {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text-2);
+}
+
+.more svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+.more:hover,
+.more[aria-expanded="true"] {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 6px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.menu button {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.menu button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.menu [data-menu="uninstall"] {
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+/* A download in progress takes the place of the buttons. */
+.download {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.download-text {
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  height: 4px;
+  overflow: hidden;
+  background: var(--line);
+}
+
+.bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--app);
+  transition: width 0.2s linear;
+}
+
+.pill {
+  height: 36px;
+  padding: 0 20px;
+  border: 1.5px solid var(--text-3);
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 650;
+}
+
+.pill:hover:not(:disabled) {
+  border-color: var(--text);
+}
+
+.pill.primary {
+  border-color: var(--press);
+  background: var(--press);
+  color: var(--on-press);
+}
+
+.pill.primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.pill:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* --------------------------------------------------------------- plates --- */
+
+.plate {
+  position: relative;
+  margin-top: 18px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: repeating-conic-gradient(#2a2d33 0% 25%, #222429 0% 50%) 0 0 / 16px 16px;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
+
+/* Not running: the shape of what it sends, but nothing is being sent. */
+.cell:not([data-state="live"]) .plate > * {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.cell:not([data-state="live"]) .plate * {
+  animation-play-state: paused !important;
+}
+
+/* ChatterLayer: caption lines in the overlay's own style. */
+.captions {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.caption {
+  display: flex;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 9px;
+  border-left: 3px solid var(--ch);
+  border-radius: 5px;
+  background: rgba(8, 10, 14, 0.8);
+  color: #fff;
+  font-size: 12.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.caption b {
+  color: var(--ch);
+  font-weight: 700;
+}
+
+.caption.arriving {
+  animation: arrive 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* JammyLayer: the now-playing card, top left where it usually sits. */
+.track {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 200px;
+  padding: 9px;
+  border-radius: 9px;
+  background: rgba(20, 24, 29, 0.85);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  color: #f2f4f3;
+  font-family: "Bahnschrift", var(--font);
+}
+
+.art {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 5px;
+  background:
+    radial-gradient(circle at 30% 30%, #f7c873 0 18%, transparent 19%),
+    linear-gradient(135deg, #d9a94c, #7c3f8c 70%, #2b1f4a);
+}
+
+.track-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.track-artist {
+  color: #8a9299;
+  font-size: 11.5px;
+}
+
+.progress {
+  height: 3px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(242, 244, 243, 0.22);
+}
+
+.progress i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #d9a94c;
+  transform-origin: left;
+  animation: play 38s linear infinite;
+}
+
+@keyframes play {
+  from {
+    transform: scaleX(0.08);
+  }
+}
+
+/* The empty slot: a plate with nothing on it yet. */
+.soon .plate {
+  opacity: 0.5;
+}
+
+.soon .name,
+.soon .tagline,
+.soon .strip {
+  color: var(--text-3);
+}
+
+/* ------------------------------------------------------------ statusbar --- */
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 34px;
+  flex: none;
+  padding: 0 16px;
+  border-top: 1px solid var(--line);
+  color: var(--text-3);
+  font-size: 11.5px;
+}
+
+.links {
+  display: flex;
+  gap: 20px;
+}
+
+/* --------------------------------------------------------------- dialog --- */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 9, 11, 0.7);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 500px;
+  background: var(--ground);
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.dialog-body {
+  padding: 22px;
+}
+
+.dialog h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 750;
+  font-stretch: 112%;
+  letter-spacing: -0.015em;
+}
+
+.dialog p {
+  margin: 8px 0 0;
+  color: var(--text-2);
+}
+
+.dialog-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.dialog-buttons .pill:first-child {
+  margin-right: auto;
+}
+
+/* ------------------------------------------------------------ scrollbar --- */
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  background: var(--line) content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WidgetCake</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="main.js" defer></script>
+  </head>
+  <body>
+    <!-- The window has no system frame; this bar is the frame. -->
+    <header class="titlebar" data-tauri-drag-region>
+      <div class="brand" data-tauri-drag-region>
+        <img src="logo.png" alt="" width="26" height="26" data-tauri-drag-region />
+        <span class="wordmark" data-tauri-drag-region>WIDGETCAKE</span>
+      </div>
+      <!-- Every overlay at a glance, like Adobe's app bar: a line under the
+           ones that are running, and a click takes you to its cell. -->
+      <nav class="switcher" id="switcher" aria-label="Jump to an overlay" data-tauri-drag-region></nav>
+      <div class="window-controls">
+        <button type="button" id="win-min" aria-label="Minimise" title="Minimise">
+          <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0 5.5h10" /></svg>
+        </button>
+        <button type="button" id="win-max" aria-label="Maximise" title="Maximise">
+          <svg viewBox="0 0 10 10" width="10" height="10"><rect x="0.5" y="0.5" width="9" height="9" /></svg>
+        </button>
+        <button type="button" id="win-close" class="close" aria-label="Close" title="Close">
+          <svg viewBox="0 0 10 10" width="10" height="10"><path d="M0 0l10 10M10 0L0 10" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <h1 class="heading">Your overlays</h1>
+      <div class="tabs" role="radiogroup" aria-label="Show">
+        <button type="button" role="radio" data-filter="all" aria-checked="true">
+          <svg viewBox="0 0 16 16" width="15" height="15"><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>
+          All overlays <span data-count="all">0</span>
+        </button>
+        <button type="button" role="radio" data-filter="live" aria-checked="false">
+          <svg viewBox="0 0 16 16" width="15" height="15"><path d="M4.5 2.8v10.4L13 8z" /></svg>
+          Running <span data-count="live">0</span>
+        </button>
+        <button type="button" role="radio" data-filter="off" aria-checked="false">
+          <svg viewBox="0 0 16 16" width="15" height="15"><path d="M8 1.8v5.4M4.6 4a5.2 5.2 0 1 0 6.8 0" /></svg>
+          Off <span data-count="off">0</span>
+        </button>
+      </div>
+      <p class="onair" id="onair" data-live="0"><span class="lamp"></span><span id="onair-text">Nothing on air</span></p>
+      <button type="button" class="square" id="rescan" aria-label="Check for updates" title="Check for updates">
+        <svg viewBox="0 0 16 16" width="15" height="15"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" /></svg>
+      </button>
+    </div>
+
+    <main>
+      <ul class="grid" id="grid" aria-label="Overlays"></ul>
+    </main>
+
+    <footer class="statusbar">
+      <span id="footnote">Launcher</span>
+      <nav class="links">
+        <button type="button" class="link" data-url="https://widgetcake.com">widgetcake.com ↗</button>
+        <button type="button" class="link" data-url="https://github.com/ruptz">GitHub ↗</button>
+        <button type="button" class="link" data-url="https://ko-fi.com/ruptz">Ko-fi ↗</button>
+      </nav>
+    </footer>
+
+    <template id="cell">
+      <li class="cell">
+        <div class="strip">
+          <span class="version"></span>
+          <span class="tag"></span>
+        </div>
+        <div class="body">
+          <div class="head">
+            <span class="mark" aria-hidden="true"></span>
+            <div>
+              <h2 class="name"></h2>
+              <p class="tagline"></p>
+            </div>
+          </div>
+          <div class="plate" aria-hidden="true"></div>
+          <p class="note" hidden></p>
+          <div class="source">
+            <span class="source-label">OBS</span>
+            <code class="url"></code>
+            <button type="button" class="link copy">Copy</button>
+          </div>
+          <div class="actions">
+            <div class="more-wrap">
+              <button type="button" class="more" aria-label="More" aria-haspopup="menu" aria-expanded="false">
+                <svg viewBox="0 0 16 4" width="16" height="4"><circle cx="2" cy="2" r="1.6" /><circle cx="8" cy="2" r="1.6" /><circle cx="14" cy="2" r="1.6" /></svg>
+              </button>
+              <div class="menu" role="menu" hidden>
+                <button type="button" role="menuitem" data-link="website">Open website</button>
+                <button type="button" role="menuitem" data-link="github">View on GitHub</button>
+                <button type="button" role="menuitem" data-menu="uninstall">Uninstall</button>
+              </div>
+            </div>
+            <div class="download" hidden>
+              <div class="bar"><i></i></div>
+              <span class="download-text"></span>
+            </div>
+            <button type="button" class="pill" data-act="update"></button>
+            <button type="button" class="pill" data-act="stop">Stop</button>
+            <button type="button" class="pill primary" data-act="open">Open</button>
+            <button type="button" class="pill primary" data-act="launch">Launch</button>
+            <button type="button" class="pill primary" data-act="install">Install</button>
+          </div>
+        </div>
+      </li>
+    </template>
+
+    <template id="soon">
+      <li class="cell soon">
+        <div class="strip"><span class="version">Next</span></div>
+        <div class="body">
+          <div class="head">
+            <span class="mark" aria-hidden="true">+</span>
+            <div>
+              <h2 class="name">More overlays</h2>
+              <p class="tagline">New Layer apps show up here when they're released.</p>
+            </div>
+          </div>
+          <div class="plate"></div>
+        </div>
+      </li>
+    </template>
+
+    <!-- Closing with apps still running: they can outlive the launcher. -->
+    <div class="veil" id="closing" hidden>
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="closing-title">
+        <div class="strip"><span class="version">Close WidgetCake</span></div>
+        <div class="dialog-body">
+          <h2 id="closing-title">Some overlays are still running</h2>
+          <p id="closing-text">
+            Leave them running and close only WidgetCake, or stop them first. A
+            stopped overlay disappears from OBS.
+          </p>
+          <div class="dialog-buttons">
+            <button type="button" class="pill" id="closing-cancel">Cancel</button>
+            <button type="button" class="pill" id="closing-leave">Leave them running</button>
+            <button type="button" class="pill primary" id="closing-stop">Stop all and close</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

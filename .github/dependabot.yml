@@ -1,0 +1,40 @@
+version: 2
+
+# Weekly is frequent enough for a project that ships on tags, not on merge.
+updates:
+  - package-ecosystem: cargo
+    directory: /src-tauri
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # The root holds only the Tauri CLI.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  # The site is a Next.js app on the public internet, so it gets watched even
+  # though it ships no binaries. Its lockfile is separate from the launcher's.
+  - package-ecosystem: npm
+    directory: /site
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      # These describe the Node that Vercel runs, not the newest one.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']

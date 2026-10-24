@@ -1,0 +1,37 @@
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Questions about a specific overlay get answered fastest in its own repo:
+        [ChatterLayer](https://github.com/ruptz/Chatterlayer/discussions) or
+        [JammyLayer](https://github.com/ruptz/JammyLayer/discussions). Anything
+        about WidgetCake itself, ask here.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you stuck on
+      description: What you were trying to do, and what you see instead of what you expected.
+      placeholder: |
+        I installed JammyLayer from WidgetCake, but its card says Not set up.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: At the bottom left of WidgetCake's window.
+      placeholder: '0.0.1'
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux

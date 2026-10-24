@@ -1,0 +1,46 @@
+[
+  {
+    "id": "chatterlayer",
+    "name": "ChatterLayer",
+    "tagline": "Live Discord voice captions, colour-coded by speaker.",
+    "folder": "ChatterLayer",
+    "dev": "src-tauri/target/debug/chatterlayer.exe",
+    "release": {
+      "repo": "ruptz/Chatterlayer",
+      "exe": "ChatterLayer"
+    },
+    "overlay": {
+      "settings": "ChatterLayer/chatterlayer-config.json",
+      "portKey": "server.port",
+      "defaultPort": 8777,
+      "path": "/"
+    },
+    "website": "https://chatterlayer.com",
+    "github": "https://github.com/ruptz/Chatterlayer",
+    "mark": "Ch",
+    "colour": "#4ECDC4",
+    "logo": "logos/chatterlayer.png"
+  },
+  {
+    "id": "jammylayer",
+    "name": "JammyLayer",
+    "tagline": "The song you're playing on Spotify, as a now-playing card.",
+    "folder": "JammyLayer",
+    "dev": "src-tauri/target/debug/jammylayer.exe",
+    "release": {
+      "repo": "ruptz/JammyLayer",
+      "exe": "JammyLayer"
+    },
+    "overlay": {
+      "settings": "JammyLayer/settings.json",
+      "portKey": "port",
+      "defaultPort": 8888,
+      "path": "/overlay"
+    },
+    "website": null,
+    "github": "https://github.com/ruptz/JammyLayer",
+    "mark": "Jm",
+    "colour": "#E9B04F",
+    "logo": "logos/jammylayer.png"
+  }
+]

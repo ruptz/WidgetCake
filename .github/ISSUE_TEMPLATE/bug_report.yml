@@ -1,0 +1,90 @@
+name: Bug report
+description: WidgetCake itself is broken, or does something other than what it says it will.
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is for the launcher: installing, updating, launching and stopping
+        overlays, and the website. If the problem is inside an overlay once it's
+        open, it belongs in [ChatterLayer](https://github.com/ruptz/Chatterlayer/issues/new/choose)
+        or [JammyLayer](https://github.com/ruptz/JammyLayer/issues/new/choose).
+
+        WidgetCake measures nothing and sends nothing home, so what you write
+        here is all I get.
+
+  - type: checkboxes
+    id: homework
+    attributes:
+      label: First
+      options:
+        - label: I searched the existing issues.
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what happened instead. Any message on the card is worth copying exactly.
+      placeholder: |
+        Pressed Install on ChatterLayer. The bar reached the end, then the card
+        said "Couldn't install it" and went back to Not installed.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: At the bottom left of WidgetCake's window.
+      placeholder: '0.0.1'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it goes wrong
+      options:
+        - Installing or opening WidgetCake itself
+        - Installing an overlay
+        - Updating an overlay, or Check for updates
+        - Launching, opening or stopping an overlay
+        - Uninstalling an overlay
+        - The OBS URL on a card
+        - Closing WidgetCake
+        - widgetcake.com
+        - Somewhere else
+    validations:
+      required: true
+
+  - type: dropdown
+    id: overlay
+    attributes:
+      label: Which overlay
+      options:
+        - ChatterLayer
+        - JammyLayer
+        - Both
+        - Not about an overlay
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: |
+        Screenshots of the window, whether it happens every time or only
+        sometimes, and whether the overlay works when installed on its own.
