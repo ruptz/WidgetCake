@@ -60,7 +60,17 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${archivo.variable} ${plexMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Cloudflare Web Analytics, cookie-free. Installed by hand because the
+            DNS records are DNS-only, so Cloudflare never sees the traffic to
+            inject it. */}
+        <script
+          type="module"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "23b7b48db7134a7380980af292e86ae5"}'
+        />
+      </body>
     </html>
   );
 }
