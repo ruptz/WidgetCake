@@ -27,12 +27,19 @@ on:
 permissions:
   contents: read
 
+# One release run per tag at a time; a second push of the same tag waits
+# rather than racing the first to create the release.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   # The installers take their version from the project files, not from the tag,
   # so a tag that disagrees would ship installers named after the wrong version.
   verify:
     name: Check the tag
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Tag matches the project version
@@ -54,6 +61,7 @@ jobs:
     name: ${{ matrix.name }}
     needs: verify
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
 
     strategy:
       # Windows is the tested platform. A failure on another must not stop it
@@ -100,10 +108,9 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
-      - uses: swatinem/rust-cache@v2
-        with:
-          workspaces: src-tauri
-          key: ${{ matrix.name }}
+      # No Rust cache here on purpose: a tag's cache can't be restored by the
+      # next tag, so saving one would only add minutes of upload to every
+      # build.
 
       # The web view and tray library Tauri builds against.
       - name: Linux build libraries
@@ -134,6 +141,7 @@ jobs:
     # before publishing it.
     if: startsWith(github.ref, 'refs/tags/') && !cancelled()
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -147,9 +155,12 @@ jobs:
       - name: Create the draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # The Linux builds arrive inside appimage/ and deb/ folders, so collect
+        # the files themselves rather than whatever sits at the top level.
         run: |
-          ls -la installers
-          gh release create "$GITHUB_REF_NAME" installers/* \
+          mapfile -t files < <(find installers -type f | sort)
+          ls -la "${files[@]}"
+          gh release create "$GITHUB_REF_NAME" "${files[@]}" \
             --draft \
             --generate-notes \
             --title "WidgetCake $GITHUB_REF_NAME"
